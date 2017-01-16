@@ -44,8 +44,23 @@ def minimaxPolicy(game, state, player):
     value, action = recurse(state, player)
     return (value, action)
 
-game = NimGame(5)
+game = NimGame(10)
 cache = {}
 
-print minimaxPolicy(game, game.startState(), 1)
+state = game.startState()
+while (state > 0):
+    action = 0
+    print "current state is", state
+    while (action not in [1,2,3]) and state - action >= 0:
+        action = int(raw_input("Choose action from 1,2,3:"))
+
+    state -= action
+    if state == 0:
+        print "You won!"
+        break
+    val, act = minimaxPolicy(game, state, 1)
+    state -= act
+    print "computer moves state to", state
+    if state == 0:
+        print "You Lost!"
 # print [game.successor(game.startState(), action) for action in game.actions(game.startState())]
