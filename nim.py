@@ -32,7 +32,7 @@ def minimaxPolicy(game, state, player):
         if cache.has_key((state, player)):
             return cache[(state, player)]
         # otherwise, look at all possible actions in the game
-        choices = [(recurse(game.successor(state, action), -1*player), action)[0] for action in game.actions(state)]
+        choices = [(recurse(game.successor(state, action), -1*player)[0], action) for action in game.actions(state)]
         # and return the max one if it is the agent and min if it is the opponent
         if player == +1:
             val = max(choices)
@@ -42,13 +42,10 @@ def minimaxPolicy(game, state, player):
         return val
     # Now recurse over the choices for the state, return the second argument of returned tuple
     value, action = recurse(state, player)
-    return value
+    return (value, action)
 
 game = NimGame(5)
 cache = {}
 
-if minimaxPolicy(game, game.startState(), 1) == float('+inf'):
-    print "player wins"
-else:
-    print "adversary wins"
+print minimaxPolicy(game, game.startState(), 1)
 # print [game.successor(game.startState(), action) for action in game.actions(game.startState())]
