@@ -23,7 +23,6 @@ class NimGame:
         return state - action
 
 def minimaxPolicy(game, state, player):
-    cache = {}
     # returns optimal (value, action) at a state
     # need to recursively compute the value, therefore define hte recursion function
     def recurse(state, player):
@@ -45,7 +44,9 @@ def minimaxPolicy(game, state, player):
     value, action = recurse(state, player)
     return value
 
-game = NimGame(22)
+game = NimGame(5)
+cache = {}
+
 if minimaxPolicy(game, game.startState(), 1) == float('+inf'):
     print "player wins"
 else:
