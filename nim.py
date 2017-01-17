@@ -108,3 +108,24 @@ def minimaxPolicy(game, state, player):
 # cache values globally to speed up the minimax recursion
 # dynamic programming ftw
 cache = {}
+
+if __name__ == "__main__":
+    # play the nim game on terminal for fun
+    game = NimGame(25)
+
+    state = game.startState()
+    while (state > 0):
+        action = 0
+        print "current state is", state
+        while (action not in [1,2,3]) and state - action >= 0:
+            action = int(raw_input("Choose action from 1,2,3:"))
+
+        state -= action
+        if state == 0:
+            print "You won!"
+            break
+        val, act = minimaxPolicy(game, state, 1)
+        state -= act
+        print "computer moves state to", state
+        if state == 0:
+            print "You Lost!"
