@@ -3,6 +3,22 @@
 from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
+from nim import NimGame, minimaxPolicy
+
+# --------------------------------------------------------- #
+# new nimgame instance
+# --------------------------------------------------------- #
+NIMGAME_SIZE = 25
+game = NimGame(NIMGAME_SIZE)
+
+# cache values globally to speed up the minimax recursion
+# dynamic programming ftw
+cache = {}
+
+# start at the startState
+global state 
+state = game.startState()
+# --------------------------------------------------------- #
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -22,13 +38,23 @@ def index():
 
 @socketio.on('player_move', namespace='/test')
 def receive_player_move(message):
+    global state
     session['receive_count'] = session.get('receive_count', 0) + 1
-    print "received", message['data']
+    action = int(message['data'])
+    print "player moved by", action
+    state -= action
+    if state == 0:
+        print "You won!"
 
-    ''' HERE IS WHERE THE COMPUTER'S MOVE WILL BE DONE BY CALLING MINIMAX '''
+    # computer plays
+    val, act = minimaxPolicy(game, state, 1)
+    state -= act
+    print "computer moves state to", state
+    if state == 0:
+        print "You Lost!"
 
     emit('server_response',
-         {'data': message['data'], 'count': session['receive_count']})
+         {'data': str(state), 'count': session['receive_count']})
 
 @socketio.on('disconnect_request', namespace='/test')
 def disconnect_request():
@@ -39,11 +65,11 @@ def disconnect_request():
 
 @socketio.on('connect', namespace='/test')
 def test_connect():
-    global thread
+    global thread, state
     emit('server_response', {'data': 'Connected', 'count': 0})
 
     ''' HERE IS WHERE YOU START THE GAME AND CREATE A NEW INSTANCE '''
-
+    state = game.startState()
 
 @socketio.on('disconnect', namespace='/test')
 def test_disconnect():
