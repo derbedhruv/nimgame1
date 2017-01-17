@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # modified from https://github.com/miguelgrinberg/Flask-SocketIO/
+# reference: https://blog.miguelgrinberg.com/post/easy-websockets-with-flask-and-gevent
+
 from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
@@ -10,10 +12,6 @@ from nim import NimGame, minimaxPolicy
 # --------------------------------------------------------- #
 NIMGAME_SIZE = 25
 game = NimGame(NIMGAME_SIZE)
-
-# cache values globally to speed up the minimax recursion
-# dynamic programming ftw
-cache = {}
 
 # start at the startState
 global state 
@@ -36,7 +34,7 @@ thread = None
 def index():
     return render_template('index.html', async_mode=socketio.async_mode)
 
-@socketio.on('player_move', namespace='/test')
+@socketio.on('player_move', namespace='/nim')
 def receive_player_move(message):
     global state
     session['receive_count'] = session.get('receive_count', 0) + 1
@@ -56,14 +54,14 @@ def receive_player_move(message):
     emit('server_response',
          {'data': str(state), 'count': session['receive_count']})
 
-@socketio.on('disconnect_request', namespace='/test')
+@socketio.on('disconnect_request', namespace='/nim')
 def disconnect_request():
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('server_response',
          {'data': 'Disconnected!', 'count': session['receive_count']})
     disconnect()
 
-@socketio.on('connect', namespace='/test')
+@socketio.on('connect', namespace='/nim')
 def test_connect():
     global thread, state
     emit('server_response', {'data': 'Connected', 'count': 0})
@@ -71,7 +69,7 @@ def test_connect():
     ''' HERE IS WHERE YOU START THE GAME AND CREATE A NEW INSTANCE '''
     state = game.startState()
 
-@socketio.on('disconnect', namespace='/test')
+@socketio.on('disconnect', namespace='/nim')
 def test_disconnect():
     print('Client disconnected', request.sid)
 
