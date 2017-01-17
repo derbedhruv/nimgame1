@@ -104,3 +104,7 @@ def minimaxPolicy(game, state, player):
     # action = the optimal action for the adversary to take next to minimize the expected utlity of the player
     value, action = recurse(state, player)
     return (value, action)
+
+# cache values globally to speed up the minimax recursion
+# dynamic programming ftw
+cache = {}
