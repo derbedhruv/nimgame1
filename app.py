@@ -77,4 +77,5 @@ def test_disconnect():
 
 
 if __name__ == '__main__':
+    # may the odds be ever in your favour
     socketio.run(app, debug=True)
