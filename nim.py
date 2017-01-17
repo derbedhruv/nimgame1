@@ -1,12 +1,9 @@
 '''
-    MINIMAX NIM GAME BACKEND
+    MINIMAX NIM GAME CLASS AND SOLVER
     AUTHOR: Dhruv Joshi
     ---------------------------------
     Based on concepts learned in CS221 - Artificial Intelligence at Stanford (Fall 2016)
 '''
-NIMGAME_SIZE = 25
-
-""" CLASS AND FUNCTION DEFINITIONS """
 class NimGame:
     # --------------------------------------------------------- #
     # The game definition class                                 #
@@ -107,32 +104,3 @@ def minimaxPolicy(game, state, player):
     # action = the optimal action for the adversary to take next to minimize the expected utlity of the player
     value, action = recurse(state, player)
     return (value, action)
-
-""" LET THE GAMES BEGIN """
-""" AND MAY THE ODDS BE EVER IN YOUR FAVOUR """
-# create new game instance
-game = NimGame(NIMGAME_SIZE)
-
-# cache values globally to speed up the minimax recursion
-# dynamic programming ftw
-cache = {}
-
-# start at the startState
-state = game.startState()
-
-# keep playing till someone reaches the end
-while (state > 0):
-    action = 0
-    print "current state is", state
-    while (action not in [1,2,3]) and state - action >= 0:
-        action = int(raw_input("Choose action from 1,2,3:"))
-
-    state -= action
-    if state == 0:
-        print "You won!"
-        break
-    val, act = minimaxPolicy(game, state, 1)
-    state -= act
-    print "computer moves state to", state
-    if state == 0:
-        print "You Lost!"
