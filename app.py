@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # modified from https://github.com/miguelgrinberg/Flask-SocketIO/
 # reference: https://blog.miguelgrinberg.com/post/easy-websockets-with-flask-and-gevent
-
+import os, sys
 from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
@@ -26,7 +26,7 @@ async_mode = None
 app = Flask(__name__)
 
 # read secret key from external file
-app.config['SECRET_KEY'] = open('secret').read().strip()
+app.config['SECRET_KEY'] = open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'secret')).read().strip()
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 
