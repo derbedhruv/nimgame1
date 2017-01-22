@@ -80,12 +80,13 @@
                     // console.log($scope.gameCount - 25 + 5*$parentIndex + $index);
 
                     socket.emit('player_move', {
-                        data: $scope.gameCount - 25 + 5*$parentIndex + $index
+                        data: $scope.gameCount - 25 + 5*$parentIndex + $index,
+                        gameCount: $scope.gameCount
                     });
                 };
 
                 $scope.resetGame = function() {
-                    socket.emit('restart_game');
+                    // socket.emit('restart_game');
                     $scope.gameCount = 25;
                 }
             });

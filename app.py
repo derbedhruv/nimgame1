@@ -13,9 +13,6 @@ from nim import NimGame, minimaxPolicy
 NIMGAME_SIZE = 25
 game = NimGame(NIMGAME_SIZE)
 
-# start at the startState
-global state 
-state = game.startState()
 # --------------------------------------------------------- #
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
@@ -36,9 +33,9 @@ def index():
 
 @socketio.on('player_move', namespace='/nim')
 def receive_player_move(message):
-    global state
     session['receive_count'] = session.get('receive_count', 0) + 1
     action = int(message['data'])
+    state = int(message['gameCount'])
     print "player moved by", action
     state -= action
     if state == 0:
@@ -63,22 +60,12 @@ def disconnect_request():
 
 @socketio.on('connect', namespace='/nim')
 def test_connect():
-    global thread, state
+    global thread
     emit('server_response', {'data': 'Connected', 'count': 0})
-
-    ''' HERE IS WHERE YOU START THE GAME AND CREATE A NEW INSTANCE '''
-    state = game.startState()
 
 @socketio.on('disconnect', namespace='/nim')
 def test_disconnect():
     print('Client disconnected', request.sid)
-
-
-@socketio.on('restart_game', namespace='/nim')
-def reset():
-    print "resetting game..."
-    global state 
-    state = game.startState()
 
 
 if __name__ == '__main__':
