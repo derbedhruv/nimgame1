@@ -9,40 +9,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular.min.js"></script>
     <script type="text/javascript" charset="utf-8">
         $(document).ready(function() {
-            // keep track of the current nim game number
-            var gameCount = 25;
-            console.log("=========let the games begin. And may the odds be ever in your favour.===========")
-            console.log(gameCount);
-
-            // Use a "/test" namespace.
-            // An application can open a connection on multiple namespaces, and
-            // Socket.IO will multiplex all those connections on a single
-            // physical channel. If you don't care about multiple channels, you
-            // can set the namespace to an empty string.
-            namespace = '/nim';
-
-            // Connect to the Socket.IO server.
-            // The connection URL has the following format:
-            //     http[s]://<domain>:<port>[/<namespace>]
-            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
-
-            // Event handler for server sent data.
-            // The callback function is invoked whenever the server emits data
-            // to the client. The data is then displayed in the "Received"
-            // section of the page.
-            socket.on('server_response', function(msg) {
-                if (isNaN(msg.data) == false) {
-                    gameCount = parseInt(msg.data);
-                    console.log(gameCount);
-                    if (gameCount == 0) {
-                        console.log("you lost!");
-                    } else if (gameCount == 1) {
-                        console.log("you won!");
-                    }
-                }
-                // $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
-            });
-
             // the angularjs system
             // http://stackoverflow.com/questions/25309945/making-table-cell-active-using-ng-click-with-ng-repeat
             var nimApp = angular.module("nimApp", [])
@@ -51,6 +17,41 @@
             });
 
             nimApp.controller("nimCtrl", function($scope) {
+                // keep track of the current nim game number
+                $scope.gameCount = 25;
+                console.log("=========let the games begin. And may the odds be ever in your favour.===========")
+                console.log($scope.gameCount);
+
+                // Use a "/test" namespace.
+                // An application can open a connection on multiple namespaces, and
+                // Socket.IO will multiplex all those connections on a single
+                // physical channel. If you don't care about multiple channels, you
+                // can set the namespace to an empty string.
+                namespace = '/nim';
+
+                // Connect to the Socket.IO server.
+                // The connection URL has the following format:
+                //     http[s]://<domain>:<port>[/<namespace>]
+                var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+
+                // Event handler for server sent data.
+                // The callback function is invoked whenever the server emits data
+                // to the client. The data is then displayed in the "Received"
+                // section of the page.
+                socket.on('server_response', function(msg) {
+                    if (isNaN(msg.data) == false) {
+                        $scope.gameCount = parseInt(msg.data);
+                        $scope.$apply();    // force angular to apply and re-render the view
+
+                        console.log($scope.gameCount);
+                        if ($scope.gameCount == 0) {
+                            console.log("you lost!");
+                        } else if ($scope.gameCount == 1) {
+                            console.log("you won!");
+                        }
+                    }
+                });
+
                 $scope.checkPosition = function ($parentIndex, $index) {
                     // check if the hovered cell position is valid or not
                     // return true, false
@@ -59,11 +60,11 @@
                         index: $index
                     };
                     var currentCellID = 25 - ($scope.selectedPosition.parent*5 + $scope.selectedPosition.index);
-                    if (currentCellID > gameCount) {
+                    if (currentCellID > $scope.gameCount) {
                         return false
                     }
 
-                    if (gameCount - currentCellID <= 3 && gameCount != currentCellID) {
+                    if ($scope.gameCount - currentCellID <= 3 && $scope.gameCount != currentCellID) {
                         return true;
                     } else {
                         return false;
@@ -72,10 +73,10 @@
 
                 $scope.selectPosition = function ($parentIndex, $index) {
                     // send selected position to server as current position
-                    console.log(gameCount - 25 + 5*$parentIndex + $index);
+                    console.log($scope.gameCount - 25 + 5*$parentIndex + $index);
 
                     socket.emit('player_move', {
-                        data: gameCount - 25 + 5*$parentIndex + $index
+                        data: $scope.gameCount - 25 + 5*$parentIndex + $index
                     });
                 };
             });
@@ -90,6 +91,9 @@
         background-color: #ddf5dd;
         cursor: pointer
     }
+    td.currentGameCount {
+        background-color: #ddddf5;
+    }
     </style>
 </head>
 <body>
@@ -103,9 +107,9 @@
                 ng-mouseenter="hoverActive=true"
                 ng-mouseleave="hoverActive=false"
                 ng-click=" checkPosition($parent.$index, $index) ? selectPosition($parent.$index, $index) : false"
-                ng-class="{fine: hoverActive && checkPosition($parent.$index, $index) }">
+                ng-class="{fine: hoverActive && checkPosition($parent.$index, $index), currentGameCount: gameCount == 25 - 5*$parent.$index - $index }">
                 <!--ng-class="{active: (selectedPosition.parent == $parent.$index && selectedPosition.index == $index )}"-->
-                {[{ 26 - 5*(i-1) - j > 0 ? 26 - 5*(i-1) - j : X }]}
+                {[{ gameCount - (25 - 5*(i-1) - j) > 0 ? 26 - 5*(i-1) - j : 'X' }]}
             </td>
         </tr>
     </table>
