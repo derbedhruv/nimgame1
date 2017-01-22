@@ -34,22 +34,13 @@
                 if (isNaN(msg.data) == false) {
                     gameCount = parseInt(msg.data);
                     console.log(gameCount);
+                    if (gameCount == 0) {
+                        console.log("you lost!");
+                    } else if (gameCount == 1) {
+                        console.log("you won!");
+                    }
                 }
                 // $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
-            });
-
-            // Handlers for the different forms in the page.
-            // These accept data from the user and send it to the server in a
-            // variety of ways
-            $('form#emit').submit(function(event) {
-                socket.emit('player_move', {
-                    data: $('#emit_data').val()
-                });
-                return false;
-            });
-            $('form#disconnect').submit(function(event) {
-                socket.emit('disconnect_request');
-                return false;
             });
 
             // the angularjs system
@@ -81,7 +72,11 @@
 
                 $scope.selectPosition = function ($parentIndex, $index) {
                     // send selected position to server as current position
-                    console.log(25 - 5*$parentIndex - $index);
+                    console.log(gameCount - 25 + 5*$parentIndex + $index);
+
+                    socket.emit('player_move', {
+                        data: gameCount - 25 + 5*$parentIndex + $index
+                    });
                 };
             });
         });
@@ -93,20 +88,14 @@
     }
     td.fine {
         background-color: #ddf5dd;
+        cursor: pointer
     }
     </style>
 </head>
 <body>
   <div class="container" ng-app="nimApp">
     <h1>Welcome to the nim game</h1>
-    <h2>Send:</h2>
-    <form id="emit" method="POST" action='#'>
-        <input type="text" name="emit_data" id="emit_data" placeholder="Message">
-        <input type="submit" value="Echo">
-    </form>
-    <form id="disconnect" method="POST" action="#">
-        <input type="submit" value="Disconnect">
-    </form>
+    
     <table class="table table-bordered" ng-controller="nimCtrl">
         <tr ng-repeat="i in [1,2,3,4,5]">
             <td style="cursor:pointer;"
@@ -116,7 +105,7 @@
                 ng-click=" checkPosition($parent.$index, $index) ? selectPosition($parent.$index, $index) : false"
                 ng-class="{fine: hoverActive && checkPosition($parent.$index, $index) }">
                 <!--ng-class="{active: (selectedPosition.parent == $parent.$index && selectedPosition.index == $index )}"-->
-                {[{ 26 - 5*(i-1) - j }]}
+                {[{ 26 - 5*(i-1) - j > 0 ? 26 - 5*(i-1) - j : X }]}
             </td>
         </tr>
     </table>
