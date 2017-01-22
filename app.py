@@ -74,6 +74,13 @@ def test_disconnect():
     print('Client disconnected', request.sid)
 
 
+@socketio.on('restart_game', namespace='/nim')
+def reset():
+    print "resetting game..."
+    global state 
+    state = game.startState()
+
+
 if __name__ == '__main__':
     # may the odds be ever in your favour
     socketio.run(app, debug=True)

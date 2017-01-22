@@ -19,6 +19,8 @@
             nimApp.controller("nimCtrl", function($scope) {
                 // keep track of the current nim game number
                 $scope.gameCount = 25;
+                $scope.comments = "";
+
                 console.log("=========let the games begin. And may the odds be ever in your favour.===========")
                 console.log($scope.gameCount);
 
@@ -41,14 +43,15 @@
                 socket.on('server_response', function(msg) {
                     if (isNaN(msg.data) == false) {
                         $scope.gameCount = parseInt(msg.data);
-                        $scope.$apply();    // force angular to apply and re-render the view
 
                         console.log($scope.gameCount);
                         if ($scope.gameCount == 0) {
-                            console.log("you lost!");
+                            $scope.comments = "you lost!";
                         } else if ($scope.gameCount == 1) {
-                            console.log("you won!");
+                            $scope.comments = "you won!";
                         }
+
+                        $scope.$apply();    // force angular to apply and re-render the view
                     }
                 });
 
@@ -79,6 +82,11 @@
                         data: $scope.gameCount - 25 + 5*$parentIndex + $index
                     });
                 };
+
+                $scope.resetGame = function() {
+                    socket.emit('restart_game');
+                    $scope.gameCount = 25;
+                }
             });
         });
     </script>
@@ -97,10 +105,10 @@
     </style>
 </head>
 <body>
-  <div class="container" ng-app="nimApp">
+  <div class="container" ng-app="nimApp" ng-controller="nimCtrl">
     <h1>Welcome to the nim game</h1>
     
-    <table class="table table-bordered" ng-controller="nimCtrl">
+    <table class="table table-bordered">
         <tr ng-repeat="i in [1,2,3,4,5]">
             <td style="cursor:pointer;"
                 ng-repeat="j in [1,2,3,4,5]" 
@@ -113,6 +121,8 @@
             </td>
         </tr>
     </table>
+    <h1>{[{ comments }]}</h1>
+    <button class="btn btn-danger" ng-click="resetGame()">Restart Game!</input>
   </div>
 </body>
 </html>
