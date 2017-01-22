@@ -22,6 +22,7 @@
                 $scope.comments = "";
 
                 console.log("=========let the games begin. And may the odds be ever in your favour.===========")
+                console.log("=========       visit derbedhruv.com for more of my cool stuff.       ===========")
                 console.log($scope.gameCount);
 
                 // Use a "/test" namespace.
@@ -76,7 +77,7 @@
 
                 $scope.selectPosition = function ($parentIndex, $index) {
                     // send selected position to server as current position
-                    console.log($scope.gameCount - 25 + 5*$parentIndex + $index);
+                    // console.log($scope.gameCount - 25 + 5*$parentIndex + $index);
 
                     socket.emit('player_move', {
                         data: $scope.gameCount - 25 + 5*$parentIndex + $index
@@ -107,6 +108,9 @@
 <body>
   <div class="container" ng-app="nimApp" ng-controller="nimCtrl">
     <h1>Welcome to the nim game</h1>
+    <h4>Nim games are a class of <a href="https://en.wikipedia.org/wiki/Nim">ancient chinese strategy games</a> (played by 2 players, zero-sum)</h4>
+    <h4>You are playing against the computer (who is really smart, ruthless and wants to win!). The objective of the game is to move the <span style="#ddddf5">light blue</span> cell to 0. You can move it 1,2 or 3 spaces ahead (indicated by a green highlight on the cell). Click on a cell to move it to that position. The computer will play immedietely after you.</h4>
+    <h3>好运</h3>
     
     <table class="table table-bordered">
         <tr ng-repeat="i in [1,2,3,4,5]">
