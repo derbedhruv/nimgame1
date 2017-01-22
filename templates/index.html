@@ -9,6 +9,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular.min.js"></script>
     <script type="text/javascript" charset="utf-8">
         $(document).ready(function() {
+            // keep track of the current nim game number
+            var gameCount = 25;
+            console.log("=========let the games begin. And may the odds be ever in your favour.===========")
+            console.log(gameCount);
+
             // Use a "/test" namespace.
             // An application can open a connection on multiple namespaces, and
             // Socket.IO will multiplex all those connections on a single
@@ -26,7 +31,10 @@
             // to the client. The data is then displayed in the "Received"
             // section of the page.
             socket.on('server_response', function(msg) {
-                console.log(msg.data);
+                if (isNaN(msg.data) == false) {
+                    gameCount = parseInt(msg.data);
+                    console.log(gameCount);
+                }
                 // $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
             });
 
@@ -46,22 +54,45 @@
 
             // the angularjs system
             // http://stackoverflow.com/questions/25309945/making-table-cell-active-using-ng-click-with-ng-repeat
-            var nimApp = angular.module("nimApp", []);
+            var nimApp = angular.module("nimApp", [])
+            .config(function($interpolateProvider){
+                $interpolateProvider.startSymbol('{[{').endSymbol('}]}')
+            });
+
             nimApp.controller("nimCtrl", function($scope) {
-                $scope.selectPosition = function ($parentIndex, $index) {
+                $scope.checkPosition = function ($parentIndex, $index) {
+                    // check if the hovered cell position is valid or not
+                    // return true, false
                     $scope.selectedPosition = {
                         parent: $parentIndex,
                         index: $index
                     };
-                    console.log(25 - ($scope.selectedPosition.parent*5 + $scope.selectedPosition.index));
-                }
+                    var currentCellID = 25 - ($scope.selectedPosition.parent*5 + $scope.selectedPosition.index);
+                    if (currentCellID > gameCount) {
+                        return false
+                    }
+
+                    if (gameCount - currentCellID <= 3 && gameCount != currentCellID) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                };
+
+                $scope.selectPosition = function ($parentIndex, $index) {
+                    // send selected position to server as current position
+                    console.log(25 - 5*$parentIndex - $index);
+                };
             });
         });
     </script>
 
     <style>
     td:hover {
-        background-color:#fafafa;
+        background-color:#f5dddd;
+    }
+    td.fine {
+        background-color: #ddf5dd;
     }
     </style>
 </head>
@@ -78,11 +109,14 @@
     </form>
     <table class="table table-bordered" ng-controller="nimCtrl">
         <tr ng-repeat="i in [1,2,3,4,5]">
-            <td style="cursor:pointer"
+            <td style="cursor:pointer;"
                 ng-repeat="j in [1,2,3,4,5]" 
-                ng-click="selectPosition($parent.$index, $index)"
-                ng-class="{active: (selectedPosition.parent == $parent.$index && selectedPosition.index == $index )}">
-                {{ j }}
+                ng-mouseenter="hoverActive=true"
+                ng-mouseleave="hoverActive=false"
+                ng-click=" checkPosition($parent.$index, $index) ? selectPosition($parent.$index, $index) : false"
+                ng-class="{fine: hoverActive && checkPosition($parent.$index, $index) }">
+                <!--ng-class="{active: (selectedPosition.parent == $parent.$index && selectedPosition.index == $index )}"-->
+                {[{ 26 - 5*(i-1) - j }]}
             </td>
         </tr>
     </table>
