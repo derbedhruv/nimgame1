@@ -86,8 +86,10 @@
                 };
 
                 $scope.resetGame = function() {
+                    // reset variables
                     // socket.emit('restart_game');
                     $scope.gameCount = 25;
+                    $scope.comments = "";
                 }
             });
         });
